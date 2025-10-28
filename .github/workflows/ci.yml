@@ -9,24 +9,27 @@ jobs:
   project-1-test:
     if: ${{ startsWith(github.head_ref, 'project-1') }}
     runs-on: ubuntu-latest
+    # Define the working directory for all steps in this job
+    defaults:
+      run:
+        working-directory: ./Projects/unit-testing-calculator-01
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       - name: Install Dependencies
-        run: pip install pytest
+        run: pip install pytest # No need for path here, we are already inside
       - name: Run Pytest for Project 1
-        run: |
-          # Change directory into the project folder first
-          cd Projects/unit-testing-calculator-01
-          # Now run pytest from inside the folder
-          pytest -v
+        run: pytest -v # No need for path here
 
   # === Job for Project 2 ===
   project-2-test:
     if: ${{ startsWith(github.head_ref, 'project-2') }}
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./Projects/api-testing-omdb-02
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -35,15 +38,15 @@ jobs:
       - name: Install Dependencies
         run: pip install pytest requests
       - name: Run Pytest for Project 2
-        run: |
-          # Change directory into the project folder
-          cd Projects/api-testing-omdb-02
-          pytest -v
+        run: pytest -v
 
   # === Job for Project 3 ===
   project-3-test:
     if: ${{ startsWith(github.head_ref, 'project-3') }}
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./Projects/ui-testing-selenium-03
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -52,15 +55,13 @@ jobs:
       - name: Install Dependencies
         run: pip install pytest selenium
       - name: Run Pytest for Project 3
-        run: |
-          # Change directory into the project folder
-          cd Projects/ui-testing-selenium-03
-          pytest -v
+        run: pytest -v
 
   # === Job for Project 4 ===
   project-4-coverage-test:
     if: ${{ startsWith(github.head_ref, 'project-4') }}
     runs-on: ubuntu-latest
+    # Note: Working directory is set within the run step for Gunicorn
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -71,11 +72,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest requests selenium flask pytest-cov gunicorn
       - name: Run Pytest with Coverage Check
+        # Run Flask server and tests from the correct directory
+        working-directory: ./Projects/e2e-testing-todo-app-04
         run: |
-          # Go into the project 4 folder
-          cd Projects/e2e-testing-todo-app-04
-          # Start the server in the background
+          # Start the server in the background (already in the right dir)
           gunicorn app:app --daemon
           sleep 3 # Wait for server to start
-          # Run tests from inside the folder
+          # Run tests (already in the right dir)
           pytest -v --cov=app --cov-fail-under=85
