@@ -17,8 +17,11 @@ jobs:
       - name: Install Dependencies
         run: pip install pytest
       - name: Run Pytest for Project 1
-        # Run pytest ONLY on the specific project folder
-        run: pytest -v 01-unit-testing-calculator/
+        run: |
+          # Change directory into the project folder first
+          cd Projects/unit-testing-calculator-01
+          # Now run pytest from inside the folder
+          pytest -v
 
   # === Job for Project 2 ===
   project-2-test:
@@ -32,7 +35,10 @@ jobs:
       - name: Install Dependencies
         run: pip install pytest requests
       - name: Run Pytest for Project 2
-        run: pytest -v 02-api-testing-omdb/
+        run: |
+          # Change directory into the project folder
+          cd Projects/api-testing-omdb-02
+          pytest -v
 
   # === Job for Project 3 ===
   project-3-test:
@@ -46,7 +52,10 @@ jobs:
       - name: Install Dependencies
         run: pip install pytest selenium
       - name: Run Pytest for Project 3
-        run: pytest -v 03-ui-testing-selenium/
+        run: |
+          # Change directory into the project folder
+          cd Projects/ui-testing-selenium-03
+          pytest -v
 
   # === Job for Project 4 ===
   project-4-coverage-test:
@@ -63,8 +72,10 @@ jobs:
           pip install pytest requests selenium flask pytest-cov gunicorn
       - name: Run Pytest with Coverage Check
         run: |
-          cd 04-e2e-testing-todo-app
+          # Go into the project 4 folder
+          cd Projects/e2e-testing-todo-app-04
+          # Start the server in the background
           gunicorn app:app --daemon
-          sleep 3
-          cd ..
-          pytest -v --cov=04-e2e-testing-todo-app/app --cov-fail-under=85 04-e2e-testing-todo-app/
+          sleep 3 # Wait for server to start
+          # Run tests from inside the folder
+          pytest -v --cov=app --cov-fail-under=85
