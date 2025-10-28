@@ -1,0 +1,64 @@
+name: Run Python Tests & Check Coverage
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # Job 1: For basic projects (1, 2, 3)
+  run-basic-tests:
+    # This job only runs if the branch name starts with 'project-1', 'project-2', or 'project-3'
+    if: ${{ startsWith(github.head_ref, 'project-1') || startsWith(github.head_ref, 'project-2') || startsWith(github.head_ref, 'project-3') }}
+    
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Install dependencies for projects 1, 2, & 3
+          pip install pytest requests selenium
+
+      - name: Run Pytest
+        run: pytest -v
+
+  # Job 2: For Project 4 (with coverage check)
+  run-coverage-test:
+    # This job only runs if the branch name starts with 'project-4'
+    if: ${{ startsWith(github.head_ref, 'project-4') }}
+    
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install All Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Install all dependencies, including those for project 4
+          pip install pytest requests selenium flask pytest-cov gunicorn
+
+      - name: Run Pytest with Coverage Check
+        run: |
+          # 1. Go into the project 4 folder and start the Flask server in the background
+          cd 04-e2e-testing-todo-app
+          gunicorn app:app --daemon
+          sleep 3 # Wait 3 seconds for the server to fully start
+          
+          # 2. Go back to the root to run tests from
+          cd ..
+          
+          # 3. Run tests and check coverage. Fail if coverage is under 85%.
+          pytest -v --cov=04-e2e-testing-todo-app/app --cov-fail-under=85
